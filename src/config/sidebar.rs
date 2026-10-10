@@ -475,11 +475,25 @@ impl Default for SpacesSidebarConfig {
     }
 }
 
+/// Section between Spaces and Agents listing only the Current Space's agents.
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[serde(default)]
+pub struct CurrentSpaceSidebarConfig {
+    pub enabled: bool,
+}
+
+impl Default for CurrentSpaceSidebarConfig {
+    fn default() -> Self {
+        Self { enabled: true }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
 #[serde(default)]
 pub struct SidebarConfig {
     pub agents: AgentsSidebarConfig,
     pub spaces: SpacesSidebarConfig,
+    pub current_space: CurrentSpaceSidebarConfig,
 }
 
 #[cfg(test)]

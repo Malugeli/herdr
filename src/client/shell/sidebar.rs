@@ -211,31 +211,7 @@ pub(crate) fn render_sidebar(
     } else {
         Rect::new(area.right().saturating_sub(1), area.y, 1, area.height)
     };
-    let (workspace_area, detail_area) =
-        crate::ui::expanded_sidebar_sections(area, state.sidebar_section_split);
-    hits.sidebar_section_divider =
-        crate::ui::sidebar_section_divider_rect(area, state.sidebar_section_split);
-    put_text(
-        buffer,
-        workspace_area.x,
-        workspace_area.y,
-        workspace_area.width,
-        " spaces",
-        Style::default()
-            .fg(palette.overlay0)
-            .add_modifier(Modifier::BOLD),
-    );
-
     let entries = workspace_entries(snapshot, state.collapsed_groups);
-    let body = Rect::new(
-        workspace_area.x,
-        workspace_area.y.saturating_add(WORKSPACE_HEADER_ROWS),
-        workspace_area.width,
-        workspace_area
-            .height
-            .saturating_sub(WORKSPACE_HEADER_ROWS + 1),
-    );
-    hits.workspace_body = body;
     let row_heights = entries
         .iter()
         .map(|entry| {
@@ -265,6 +241,42 @@ pub(crate) fn render_sidebar(
                 .map_or(0, |next| u16::from(!next.indented) * config.spaces.row_gap)
         })
         .collect::<Vec<_>>();
+    let (workspace_area, detail_area) = if config.current_space_section {
+        // Spaces are few; size the section to its rows so the agent sections get the room.
+        // One blank row stays below the last Space as the drop target for dragging to the end.
+        let content = row_heights
+            .iter()
+            .chain(&gaps)
+            .map(|h| *h as usize)
+            .sum::<usize>();
+        let wanted = (WORKSPACE_HEADER_ROWS as usize + content + 2).min(u16::MAX as usize) as u16;
+        hits.sidebar_section_divider = Rect::default();
+        crate::ui::expanded_sidebar_sections_with_workspace_height(area, wanted)
+    } else {
+        hits.sidebar_section_divider =
+            crate::ui::sidebar_section_divider_rect(area, state.sidebar_section_split);
+        crate::ui::expanded_sidebar_sections(area, state.sidebar_section_split)
+    };
+    put_text(
+        buffer,
+        workspace_area.x,
+        workspace_area.y,
+        workspace_area.width,
+        " spaces",
+        Style::default()
+            .fg(palette.overlay0)
+            .add_modifier(Modifier::BOLD),
+    );
+
+    let body = Rect::new(
+        workspace_area.x,
+        workspace_area.y.saturating_add(WORKSPACE_HEADER_ROWS),
+        workspace_area.width,
+        workspace_area
+            .height
+            .saturating_sub(WORKSPACE_HEADER_ROWS + 1),
+    );
+    hits.workspace_body = body;
     let mut metrics = super::scroll::list_scroll_metrics(
         &row_heights,
         &gaps,
@@ -429,6 +441,29 @@ pub(crate) fn render_sidebar(
             );
         }
     }
+
+    let detail_area = if config.current_space_section {
+        let rows = super::current_space_rows(snapshot, config);
+        let height = super::current_space_section_height(area.height, detail_area.height);
+        let section = Rect::new(detail_area.x, detail_area.y, detail_area.width, height);
+        super::render_current_space_section(
+            buffer,
+            section,
+            snapshot,
+            &rows,
+            config,
+            state.current_space_scroll,
+            hits,
+        );
+        Rect::new(
+            detail_area.x,
+            detail_area.y + height,
+            detail_area.width,
+            detail_area.height - height,
+        )
+    } else {
+        detail_area
+    };
 
     super::render_agent_panel(
         buffer,

@@ -194,6 +194,8 @@ fn focused_workspace_change_reveals_new_workspace_in_full_sidebar() {
 #[test]
 fn client_owned_sidebar_dividers_resize_live() {
     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+    // The Spaces/Agents divider only exists in the two-section layout.
+    state.config.current_space_section = false;
     state.set_snapshot(Box::new(snapshot()));
     state.set_pane_surface(surface());
     state.compose(106, 30).expect("expanded sidebar");

@@ -915,6 +915,8 @@ fn active_agent_view_controls_sidebar_order_and_focus_indices() {
     projected.agent_view_label = Some("review".into());
     projected.agent_order = vec!["pane_2".into(), "pane_3".into()];
     let mut state = ClientShellState::new(ClientShellConfig::from_config(&Config::default()));
+    // Pins the two-section geometry this test measures.
+    state.config.current_space_section = false;
     state.set_snapshot(Box::new(projected));
     state.set_pane_surface(surface());
     state.compose(106, 30).expect("filtered agent sidebar");

@@ -7,7 +7,10 @@ pub(in crate::client::shell) mod sidebar;
 #[path = "../shell/tabs.rs"]
 mod tabs;
 
-pub(super) use super::agent_sidebar::{ordered_agent_pane_ids, render_agent_panel};
+pub(super) use super::agent_sidebar::{
+    current_space_rows, current_space_section_height, ordered_agent_pane_ids, render_agent_panel,
+    render_current_space_section,
+};
 pub(super) use super::aggregate_navigation::navigator_rows as client_navigator_rows;
 pub(super) use overlays::{render_client_overlay, render_context_menu, render_global_menu};
 pub(super) use sidebar::{render_collapsed_sidebar, render_sidebar, workspace_entries};
@@ -238,6 +241,7 @@ pub(super) struct ShellRenderState<'a> {
     pub(super) remote_collapsed_groups: &'a HashMap<ClientEndpointId, HashSet<String>>,
     pub(super) workspace_scroll: &'a mut usize,
     pub(super) agent_scroll: &'a mut usize,
+    pub(super) current_space_scroll: &'a mut super::agent_sidebar::CurrentSpaceScroll,
     pub(super) tab_scroll: &'a mut usize,
     pub(super) reveal_focused_workspace: &'a mut bool,
     pub(super) reveal_focused_tab: &'a mut bool,
@@ -331,6 +335,9 @@ pub(super) fn render_shell(
         hits.machines.clear();
         hits.workspaces.clear();
         hits.agents.clear();
+        hits.current_space_agents.clear();
+        hits.current_space_body = Rect::default();
+        hits.current_space_max_scroll = 0;
         hits.endpoint_agents.clear();
         hits.tab_scroll_left = Rect::default();
         hits.tab_scroll_right = Rect::default();

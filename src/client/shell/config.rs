@@ -123,6 +123,7 @@ impl ClientShellConfig {
             hide_tab_bar_when_single_tab: config.ui.hide_tab_bar_when_single_tab,
             spaces: config.ui.sidebar.spaces.clone(),
             agents: config.ui.sidebar.agents.clone(),
+            current_space_section: config.ui.sidebar.current_space.enabled,
             agent_panel_sort: config.ui.agent_panel_sort,
             status_indicators: config.ui.status_indicators,
             sound_enabled: config.ui.sound.enabled,

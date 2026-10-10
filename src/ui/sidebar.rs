@@ -65,6 +65,31 @@ pub(crate) fn expanded_sidebar_sections(area: Rect, split_ratio: f32) -> (Rect, 
     )
 }
 
+/// Splits the expanded sidebar with the Spaces section `workspace_height` rows tall, capped at
+/// half the sidebar so many Spaces scroll instead of crowding out the agent sections.
+pub(crate) fn expanded_sidebar_sections_with_workspace_height(
+    area: Rect,
+    workspace_height: u16,
+) -> (Rect, Rect) {
+    let content = Rect::new(area.x, area.y, area.width.saturating_sub(1), area.height);
+    if content.is_empty() {
+        return (Rect::default(), Rect::default());
+    }
+    let workspace_height = workspace_height
+        .min(content.height / 2)
+        .max(4)
+        .min(content.height);
+    (
+        Rect::new(content.x, content.y, content.width, workspace_height),
+        Rect::new(
+            content.x,
+            content.y + workspace_height,
+            content.width,
+            content.height - workspace_height,
+        ),
+    )
+}
+
 pub(crate) fn sidebar_section_divider_rect(area: Rect, split_ratio: f32) -> Rect {
     let content = Rect::new(area.x, area.y, area.width.saturating_sub(1), area.height);
     if content.width == 0 || content.height < 6 {
