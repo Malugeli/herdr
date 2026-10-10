@@ -41,7 +41,19 @@ enabled = false
 
 ## Install
 
-There are no prebuilt binaries. Build from source (Linux; needs Rust and [Zig 0.16.0](https://ziglang.org/download/)):
+### Prebuilt binary (Linux x86_64)
+
+Download `herdr-linux-x86_64` from the [latest release](https://github.com/Malugeli/herdr/releases/latest). It needs glibc 2.39 or newer (e.g. Ubuntu 24.04+, Fedora 40+, current Arch).
+
+```bash
+curl -L -o herdr https://github.com/Malugeli/herdr/releases/latest/download/herdr-linux-x86_64
+chmod +x herdr
+mv herdr ~/.local/bin/herdr
+```
+
+### From source
+
+Needs Rust and [Zig 0.16.0](https://ziglang.org/download/):
 
 ```bash
 git clone https://github.com/Malugeli/herdr.git
@@ -50,7 +62,9 @@ ZIG=/path/to/zig-0.16.0/zig cargo build --release --locked
 cp target/release/herdr ~/.local/bin/herdr
 ```
 
-Already running upstream herdr? The running server stays compatible: detach (`prefix+q`) and run `herdr` again to get the new sidebar. Don't run `herdr update` afterwards — it replaces the binary with the official release.
+### Switching from upstream herdr
+
+The running server stays compatible: detach (`prefix+q`) and run `herdr` again to get the new sidebar. Don't run `herdr update` afterwards — it replaces the binary with the official release.
 
 ## Status
 
