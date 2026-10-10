@@ -1,85 +1,74 @@
-# herdr
+# herdr — current space fork
 
+An unofficial fork of [herdr](https://github.com/herdrdev/herdr), the terminal workspace manager for AI coding agents, with one addition: **a sidebar section that shows only the agents of the space you are in.**
 
-<p align="center">
-  <img src="assets/logo.png" alt="herdr" width="100" />
-</p>
+> Not affiliated with or endorsed by the herdr maintainers. For the original project, docs and releases, go to [herdrdev/herdr](https://github.com/herdrdev/herdr).
 
-<p align="center">
-  <a href="https://herdr.dev">herdr.dev</a> · <a href="#install">install</a> · <a href="https://herdr.dev/docs/quick-start/">quick start</a> · <a href="https://herdr.dev/docs/">docs</a>
-</p>
+## Why
 
-<p align="center">
-  English · <a href="README.zh-CN.md">简体中文</a>
-</p>
+I work on several projects in parallel, one herdr space each, with a few coding agents per project. herdr's agents list shows every agent from every space. That is great for spotting which project needs me, but when I switch to a space I also want to see *its* agents at a glance, and which number to press to reach them.
 
-<p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-666666?labelColor=333333" alt="Apache 2.0 license" /></a>
-  <a href="https://github.com/herdrdev/herdr/releases"><img src="https://img.shields.io/github/downloads/herdrdev/herdr/total?labelColor=333333&color=666666" alt="total GitHub release downloads" /></a>
-  <a href="https://github.com/herdrdev/herdr/stargazers"><img src="https://img.shields.io/github/stars/herdrdev/herdr?labelColor=333333&color=666666&logo=github" alt="GitHub stars" /></a>
-  <a href="https://github.com/herdrdev/herdr/releases/latest"><img src="https://img.shields.io/github/v/release/herdrdev/herdr?label=release&labelColor=333333&color=666666" alt="latest stable release" /></a>
-  <a href="https://formulae.brew.sh/formula/herdr"><img src="https://img.shields.io/homebrew/v/herdr?label=homebrew&labelColor=333333&color=666666" alt="Homebrew version" /></a>
-  <a href="https://x.com/herdrdev"><img src="https://img.shields.io/badge/follow-%40herdrdev-000000?logo=x&logoColor=white" alt="follow @herdrdev on X" /></a>
-</p>
+herdr used to have a per-workspace filter for the agents list (`ui.agent_panel_scope = "current"`), but it was removed in 0.8.2 and replaced the full list anyway. I wanted both at once.
 
----
+## What this fork changes
 
-https://github.com/user-attachments/assets/043ec09f-4bdd-41d5-aee0-8fda6b83e267
+The expanded sidebar now has three sections instead of two:
 
-**the runtime your coding agents live on.**
-
-- **detach without stopping work** — herdr keeps terminals running in a background server when you close the client or lose your SSH connection. after a server or machine restart, herdr restores the saved layout and can resume supported agent sessions; the original processes do not survive. [session state →](https://herdr.dev/docs/session-state/)
-- **several machines, one window** — keep local work and saved ssh machines together, with a combined agent list and independent reconnects. [remote machines →](https://herdr.dev/docs/connecting-machines/)
-- **never hunt for the stuck one** — every pane is marked working, blocked, or idle. when an agent stops and needs an answer, herdr says so.
-- **agent-native** — agents drive herdr through the cli and socket api: they can spawn panes, prompt each other, and wait until another agent is genuinely blocked. [agent skill →](https://herdr.dev/docs/agent-skill/)
-- **runs what you already run** — claude code, codex, cursor, opencode, grok and the rest. herdr doesn't wrap or replace them; it owns their terminals. building an agent? [add herdr support →](https://herdr.dev/docs/add-herdr-support/)
-- **keyboard and mouse, both first-class** — tmux-style prefix keys *and* click, drag, split. pick per moment, not per tool.
-- **plugins** — extend panes and workflows. [browse the marketplace →](https://herdr.dev/plugins/)
-- **one rust binary, no electron** — runs in whatever terminal you already use.
-
----
-
-## install
-
-```bash
-curl -fsSL https://herdr.dev/install.sh | sh
+```
+ spaces            ← only as tall as your spaces
+ ○ herdr
+ ○ aviv
+──────────────
+ herdr             ← new: the current space's agents
+ 1 ○ claude
+ 3 ● codex
+──────────────
+ agents            ← unchanged: every agent in every space
+ ○ herdr · 1  claude
+ ● herdr · 3  codex
+ ○ aviv       claude
 ```
 
-or `brew install herdr` · `mise use -g herdr` · windows: `powershell -ExecutionPolicy Bypass -c "irm https://herdr.dev/install.ps1 | iex"` · [endpoint-protected Windows](https://herdr.dev/docs/windows-beta/) · [binaries](https://github.com/herdrdev/herdr/releases)
+- **Current space section** — headed by the current space's name, lists only its agents.
+- **Tab numbers** — each row starts with the tab's position, the digit for `prefix+1..9`. Plain shell tabs are skipped, so gaps are fine: `1` and `3` above means tab 2 has no agent.
+- **Stable order** — always tab order, never re-sorted by status, so the numbers don't jump.
+- **Fixed height** — one third of the sidebar, so switching spaces never moves the sections below. When a space has more agents than fit, the last row shows `+N more`, the mouse wheel scrolls, and focusing a hidden agent (e.g. with `prefix+9`) scrolls it into view.
+- **Compact spaces** — the spaces section shrinks to its rows (up to half the sidebar), giving the agent sections the room.
+- **Click to focus** — like the agents list.
 
-then start it where the work lives:
+Everything else is upstream herdr: keybindings, the collapsed sidebar, mobile view and the server are untouched. The change is client-only.
 
-```bash
-herdr
+## Configuration
+
+On by default. To get upstream's two-section sidebar back:
+
+```toml
+# ~/.config/herdr/config.toml
+[ui.sidebar.current_space]
+enabled = false
 ```
 
-run your agents, split panes, walk away. `ctrl+b q` detaches, `herdr` reattaches. [quick start →](https://herdr.dev/docs/quick-start/)
+## Install
 
-## docs
-
-everything lives at [herdr.dev/docs](https://herdr.dev/docs/): [quick start](https://herdr.dev/docs/quick-start/) · [concepts](https://herdr.dev/docs/concepts/) · [supported agents](https://herdr.dev/docs/agents/) · [keyboard](https://herdr.dev/docs/keyboard/) · [configuration](https://herdr.dev/docs/configuration/) · [session state](https://herdr.dev/docs/session-state/) · [connecting machines](https://herdr.dev/docs/connecting-machines/) · [remote](https://herdr.dev/docs/persistence-remote/) · [integrations](https://herdr.dev/docs/integrations/) · [add herdr support to your agent](https://herdr.dev/docs/add-herdr-support/) · [plugins](https://herdr.dev/docs/plugins/) · [socket api](https://herdr.dev/docs/socket-api/)
-
-## thanks
-
-every past sponsor and backer is listed in [SPONSORS.md](./SPONSORS.md) — thank you 🐑
-
-enterprise / partnership: hey@herdr.dev
-
-## agent instructions
-
-if you are an ai agent helping with this repository, read [`AGENTS.md`](./AGENTS.md) before making changes and read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before opening issues or PRs.
-
-## development
+There are no prebuilt binaries. Build from source (Linux; needs Rust and [Zig 0.16.0](https://ziglang.org/download/)):
 
 ```bash
-git clone https://github.com/herdrdev/herdr
+git clone https://github.com/Malugeli/herdr.git
 cd herdr
-cargo build --release
-
-just test        # unit tests
-just check       # formatting, tests, and maintenance checks
+ZIG=/path/to/zig-0.16.0/zig cargo build --release --locked
+cp target/release/herdr ~/.local/bin/herdr
 ```
 
-## license
+Already running upstream herdr? The running server stays compatible: detach (`prefix+q`) and run `herdr` again to get the new sidebar. Don't run `herdr update` afterwards — it replaces the binary with the official release.
 
-Herdr is licensed under the [Apache License 2.0](LICENSE).
+## Status
+
+Based on herdr 0.9.3. Tested on Linux only. I sync with upstream when I need a newer feature.
+
+The implementation lives mostly in `src/client/shell/agent_sidebar.rs` and `src/client/shell/sidebar.rs`, with tests in `src/client/shell/tests/current_space_section.rs`.
+
+## License
+
+[Apache-2.0](LICENSE), same as upstream. Copyright of the original code belongs to the herdr authors; modifications in this fork are listed above and in the commit history.
+
+The original project README is kept as [README.upstream.md](README.upstream.md).
